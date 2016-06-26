@@ -1,0 +1,167 @@
+1. what is date of birth of actor "amitabh bachchan"
+
+SELECT a_adob
+FROM actors
+WHERE a_aname='amitabh bachchan'
+
+
+2. find all the female actors who have worked in a movie directed by "karan johar"
+
+SELECT a_aname
+FROM  directedby, workin, actors
+WHERE a_aname=w_aname AND
+      w_mtitle=db_mtitle AND
+      db_dname= 'karan johar' AND
+      a_agender='f'	
+
+
+3. what is the number of actors working in each movie
+
+SELECT w_mtitle, COUNT(w_aname)
+FROM workin
+GROUP BY w_mtitle
+
+
+4. who were the actors who worked in the movies released in '2013'
+
+SELECT DISTINCT(w_aname)
+FROM workin
+WHERE w_myear=2013
+
+
+5. what is the genre with highest number of movies
+
+
+
+
+SELECT S3.m_mgenre, S3.num_mov
+
+FROM
+
+	(SELECT MAX(S1.num_mov) AS max_num
+
+	FROM
+
+		(SELECT m_mgenre, COUNT(m_mtitle) AS num_mov
+
+		FROM movies
+
+		GROUP BY m_mgenre) S1
+	) S2 ,
+
+	(SELECT m_mgenre, COUNT(m_mtitle) AS num_mov
+
+		FROM movies
+
+		GROUP BY m_mgenre) S3
+
+WHERE S3.num_mov=S2.max_num
+
+
+
+6. what are the movies that were shot in canada
+
+SELECT DISTINCT(sa_mtitle)
+FROM shotat, places
+WHERE sa_clocation=p_clocation AND
+      p_cname='canada'
+
+
+7. how many movies were released in australia in the year 2013
+
+SELECT COUNT(ri_mtitle)
+FROM releasedin
+WHERE ri_myear=2013 AND
+      ri_cname='australia'
+
+
+8. list the actors who were born in the 80's and worked in a movie released in 2009
+
+SELECT *
+FROM workin
+WHERE  '01/01/1980'<=w_adob<'01/01/1990' AND
+        w_myear=2009
+
+
+9. list the directors in the ascending order of the birthdate in which they were born
+
+SELECT STRFTIME('%y',d_ddob), d_dname
+FROM directors
+
+ORDER BY STRFTIME('%y',d_ddob) ASC
+
+
+10. list the actors who worked with directors younger than their own age
+
+SELECT DISTINCT(w_aname)
+FROM workin, directedby
+
+WHERE w_mtitle=db_mtitle AND
+      w_adob<db_ddob
+
+11. list the movies that were shot in a country but not released in that country
+
+SELECT sa_mtitle AS movietitle, p_cname AS countryname
+FROM shotat, places
+WHERE sa_clocation=p_clocation
+
+EXCEPT
+
+SELECT ri_mtitle AS movietitle, ri_cname AS countryname
+FROM releasedin
+
+
+12. what are the production houses that did not produce any movie
+
+SELECT ph_pname
+FROM prodhouse
+
+WHERE
+ph_pname NOT IN 
+			( SELECT pb_pname
+			  FROM producedby
+			  )
+
+
+
+13. list the actors who are also directors
+
+SELECT a_aname
+FROM actors, directors
+WHERE  a_aname=d_dname AND
+       a_adob=d_ddob
+
+
+14.  at how many different locations has each movie been filmed
+
+SELECT COUNT(sa_clocation), sa_mtitle
+
+FROM shotat
+
+GROUP BY sa_mtitle
+
+
+15. how many actors are male and female (list in seperate columns)
+
+SELECT S1.num_male, S2.num_female
+
+FROM 
+
+	(SELECT COUNT(a_aname) AS num_male
+	 FROM actors
+	 WHERE a_agender='m'
+	) S1,
+
+	(SELECT COUNT(a_aname) AS num_female
+	 FROM actors
+	 WHERE a_agender='f'
+	) S2
+
+
+16. how many movies are released for each genre
+
+SELECT COUNT(m_mtitle), m_mgenre
+
+FROM movies
+
+GROUP BY m_mgenre
